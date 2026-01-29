@@ -1,16 +1,18 @@
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 
 function Restricted() {
   const navigate = useNavigate()
+  const { purgeActive = false } = useOutletContext() || {}
 
   useEffect(() => {
+    if (purgeActive) return
     const timer = setTimeout(() => {
       navigate('/')
     }, 3500)
 
     return () => clearTimeout(timer)
-  }, [navigate])
+  }, [navigate, purgeActive])
 
   return (
     <section className="page">

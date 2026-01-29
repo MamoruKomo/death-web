@@ -81,12 +81,12 @@ function Layout() {
   }, [])
 
   useEffect(() => {
-    if (!purgeActive) return
+    if (!purgeActive || location.pathname === '/restricted') return
     const timer = setTimeout(() => {
       navigate('/restricted')
     }, 900)
     return () => clearTimeout(timer)
-  }, [navigate, purgeActive])
+  }, [navigate, purgeActive, location.pathname])
 
   const elapsedMinutes = Math.max(0, Math.floor((Date.now() - firstAccessAt) / 60000))
   const grade = useMemo(() => {
@@ -136,7 +136,17 @@ function Layout() {
         </div>
       </header>
       <main className="main">
-        <Outlet context={{ accessCount, elapsedMinutes, orderScore, grade, penaltyActive, clickCount }} />
+        <Outlet
+          context={{
+            accessCount,
+            elapsedMinutes,
+            orderScore,
+            grade,
+            penaltyActive,
+            clickCount,
+            purgeActive,
+          }}
+        />
         {purgeActive && (
           <div className="notice notice-compact">
             秩序指数が基準値を下回りました。粛清手続きが開始されました。詳細はご利用いただけません。協力ありがとうございます。
