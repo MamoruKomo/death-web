@@ -1,7 +1,13 @@
 import { Link, useOutletContext } from 'react-router-dom'
 
 function Top() {
-  const { accessCount = 0, elapsedMinutes = 0 } = useOutletContext() || {}
+  const {
+    accessCount = 0,
+    elapsedMinutes = 0,
+    orderScore = 72,
+    grade = 'B-',
+    penaltyActive = false,
+  } = useOutletContext() || {}
   const limited = accessCount >= 3
   const softened = accessCount >= 4 || elapsedMinutes >= 2
 
@@ -12,7 +18,10 @@ function Top() {
         <div className="status-grid">
           <div className="status-item">
             <div className="status-label">現在の秩序指数</div>
-            <div className="status-value">B-</div>
+            <div className="status-value">{grade}</div>
+            <div className="muted" style={{ marginTop: '8px' }}>
+              内部評価値：{orderScore}
+            </div>
           </div>
           <div className="status-item">
             <div className="status-label">社会適合レベル</div>
@@ -29,21 +38,26 @@ function Top() {
               秩序指数を確認する（ご利用いただけません）
             </span>
           ) : (
-            <Link className="action-button" to="/index-check">秩序指数を確認する</Link>
+            <Link className="action-button" to="/index-check" data-warning="選択は記録されています。ご協力ありがとうございます。">秩序指数を確認する</Link>
           )}
-          <Link className="action-button" to="/log">行動履歴を見る</Link>
+          <Link className="action-button" to="/log" data-warning="閲覧は安全運用のため記録されます。">行動履歴を見る</Link>
           {limited ? (
             <span className="action-button is-disabled" aria-disabled="true">
               改善提案を送信する（ご利用いただけません）
             </span>
           ) : (
-            <Link className="action-button" to="/suggestion">改善提案を送信する</Link>
+            <Link className="action-button" to="/suggestion" data-warning="送信内容は記録されます。ご協力ありがとうございます。">改善提案を送信する</Link>
           )}
-          <Link className="action-button" to="/about">この社会について</Link>
+          <Link className="action-button" to="/about" data-warning="閲覧履歴は保護のため記録されます。">この社会について</Link>
         </div>
         {limited && (
           <div className="notice" style={{ marginTop: '16px' }}>
             あなたの安全のため一部機能は制限されています。協力ありがとうございます。
+          </div>
+        )}
+        {penaltyActive && (
+          <div className="notice" style={{ marginTop: '12px' }}>
+            行動傾向により安全運用措置が適用されています。一部機能はご利用いただけません。協力ありがとうございます。
           </div>
         )}
         {softened && (

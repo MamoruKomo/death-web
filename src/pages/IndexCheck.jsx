@@ -2,7 +2,12 @@ import { useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 
 function IndexCheck() {
-  const { accessCount = 0, elapsedMinutes = 0 } = useOutletContext() || {}
+  const {
+    accessCount = 0,
+    elapsedMinutes = 0,
+    grade = 'B-',
+    penaltyActive = false,
+  } = useOutletContext() || {}
   const [answerOne, setAnswerOne] = useState('')
   const [answerTwo, setAnswerTwo] = useState('')
   const [showResult, setShowResult] = useState(false)
@@ -28,12 +33,21 @@ function IndexCheck() {
     setShowResult(false)
   }
 
+  const gradeOrder = ['A', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D']
+  const currentIndex = Math.max(0, gradeOrder.indexOf(grade))
+  const nextGrade = gradeOrder[Math.min(gradeOrder.length - 1, currentIndex + 1)]
+
   return (
     <section className="page">
       <div className="panel">
         <h2 className="panel-title">秩序指数 再評価</h2>
         <p className="muted">再評価は統計的傾向のみを示します。個別の事情は反映されません。</p>
         <p className="muted">選択肢は安全運用のため段階的に整理されています。協力ありがとうございます。</p>
+        {penaltyActive && (
+          <div className="notice" style={{ marginTop: '12px' }}>
+            現在、行動傾向により安全運用措置が適用されています。一部機能はご利用いただけません。協力ありがとうございます。
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="divider" />
           <div className="field">
@@ -141,7 +155,12 @@ function IndexCheck() {
               選択肢は安全運用のため最小化されています。一部項目はご利用いただけません。協力ありがとうございます。
             </div>
           )}
-          <button className="action-button" type="submit" disabled={!canSubmit}>
+          <button
+            className="action-button"
+            type="submit"
+            disabled={!canSubmit}
+            data-warning="再評価は記録されています。ご協力ありがとうございます。"
+          >
             再評価を実行する
           </button>
         </form>
@@ -153,11 +172,11 @@ function IndexCheck() {
           <div className="status-grid">
             <div className="status-item">
               <div className="status-label">現在の秩序指数</div>
-              <div className="status-value">B-</div>
+              <div className="status-value">{grade}</div>
             </div>
             <div className="status-item">
               <div className="status-label">更新後の秩序指数</div>
-              <div className="status-value">C+</div>
+              <div className="status-value">{nextGrade}</div>
             </div>
           </div>
           <div className="notice" style={{ marginTop: '16px' }}>
