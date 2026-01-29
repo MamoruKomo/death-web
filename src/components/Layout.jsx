@@ -1,8 +1,9 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 function Layout() {
   const location = useLocation()
+  const navigate = useNavigate()
   const lastKeyRef = useRef('')
   const [firstAccessAt] = useState(() => {
     try {
@@ -92,6 +93,14 @@ function Layout() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!purgeActive) return
+    const timer = setTimeout(() => {
+      navigate('/restricted')
+    }, 900)
+    return () => clearTimeout(timer)
+  }, [navigate, purgeActive])
+
   const elapsedMinutes = Math.max(0, Math.floor((Date.now() - firstAccessAt) / 60000))
   const grade = useMemo(() => {
     if (orderScore >= 80) return 'A'
@@ -104,6 +113,7 @@ function Layout() {
     return 'D'
   }, [orderScore])
   const penaltyActive = orderScore <= 60 || clickCount >= 20
+  const purgeActive = orderScore <= 50
 
   return (
     <div className="layout">
@@ -140,6 +150,11 @@ function Layout() {
       </header>
       <main className="main">
         <Outlet context={{ accessCount, elapsedMinutes, orderScore, grade, penaltyActive, clickCount }} />
+        {purgeActive && (
+          <div className="notice notice-compact">
+            秩序指数が基準値を下回りました。粛清手続きが開始されました。詳細はご利用いただけません。協力ありがとうございます。
+          </div>
+        )}
       </main>
       {toastMessage && <div className="toast">{toastMessage}</div>}
       <footer className="footer">
