@@ -1,8 +1,11 @@
 import { useState } from 'react'
+import { useOutletContext } from 'react-router-dom'
 
 function Suggestion() {
+  const { accessCount = 0, elapsedMinutes = 0 } = useOutletContext() || {}
   const [message, setMessage] = useState('')
   const [rejected, setRejected] = useState(false)
+  const softened = accessCount >= 4 || elapsedMinutes >= 2
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -14,6 +17,9 @@ function Suggestion() {
       <div className="panel">
         <h2 className="panel-title">改善提案フォーム</h2>
         <p className="muted">提案は秩序維持のために記録されます。返信は行われません。</p>
+        {softened && (
+          <p className="muted">より丁寧なご案内を心がけています。安心してご記入ください。協力ありがとうございます。</p>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="divider" />
           <div className="field">
@@ -35,7 +41,7 @@ function Suggestion() {
 
       {rejected && (
         <div className="notice">
-          あなたの秩序指数では利用できません。これは罰ではありません。
+          現在この機能はご利用いただけません。制限されています。協力ありがとうございます。
         </div>
       )}
     </section>
