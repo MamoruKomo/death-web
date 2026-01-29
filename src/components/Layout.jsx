@@ -80,14 +80,6 @@ function Layout() {
     }
   }, [])
 
-  useEffect(() => {
-    if (!purgeActive || location.pathname === '/restricted') return
-    const timer = setTimeout(() => {
-      navigate('/restricted')
-    }, 900)
-    return () => clearTimeout(timer)
-  }, [navigate, purgeActive, location.pathname])
-
   const elapsedMinutes = Math.max(0, Math.floor((Date.now() - firstAccessAt) / 60000))
   const grade = useMemo(() => {
     if (orderScore >= 80) return 'A'
@@ -100,8 +92,17 @@ function Layout() {
     return 'D'
   }, [orderScore])
   const penaltyActive = orderScore <= 60 || clickCount >= 20
-  const purgeActive = orderScore <= 50
+  const purgeActive = orderScore < 50
+  const isRehabilitation = location.pathname.endsWith('/rehabilitation')
+  const lockout = purgeActive && !isRehabilitation
 
+  useEffect(() => {
+    if (!purgeActive || isRehabilitation) return
+    const timer = setTimeout(() => {
+      navigate('/rehabilitation')
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [navigate, purgeActive, isRehabilitation])
   return (
     <div className="layout">
       <header className="header">
@@ -121,7 +122,7 @@ function Layout() {
             </div>
           </div>
           <p className="subtitle">社会の安定は、あなたの協力で成り立っています。</p>
-          <nav className="top-nav">
+          <nav className={`top-nav ${purgeActive ? 'nav-locked' : ''}`}>
             <Link to="/">ポータル</Link>
             <Link to="/index-check">秩序指数再評価</Link>
             <Link to="/log">行動履歴</Link>
@@ -147,12 +148,8 @@ function Layout() {
             purgeActive,
           }}
         />
-        {purgeActive && (
-          <div className="notice notice-compact">
-            秩序指数が基準値を下回りました。粛清手続きが開始されました。詳細はご利用いただけません。協力ありがとうございます。
-          </div>
-        )}
       </main>
+      {lockout && <div className="blackout" aria-hidden="true" />}
       {toastMessage && <div className="toast">{toastMessage}</div>}
       <footer className="footer">
         <div className="footer-inner">※ 秩序指数は行動履歴・発言傾向・社会的影響度から算出されます</div>
