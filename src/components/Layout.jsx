@@ -16,14 +16,7 @@ function Layout() {
       return Date.now()
     }
   })
-  const [accessCount, setAccessCount] = useState(() => {
-    try {
-      const stored = Number(localStorage.getItem('accessCount'))
-      return Number.isFinite(stored) && stored > 0 ? stored : 0
-    } catch {
-      return 0
-    }
-  })
+  const [accessCount, setAccessCount] = useState(0)
   const [clickCount, setClickCount] = useState(() => {
     try {
       const stored = Number(localStorage.getItem('clickCount'))
@@ -48,13 +41,7 @@ function Layout() {
     lastKeyRef.current = location.key
 
     setAccessCount((prev) => {
-      const next = prev + 1
-      try {
-        localStorage.setItem('accessCount', String(next))
-      } catch {
-        // ignore storage errors
-      }
-      return next
+      return prev + 1
     })
   }, [location.key])
 

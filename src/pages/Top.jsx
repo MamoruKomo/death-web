@@ -10,6 +10,13 @@ function Top() {
   } = useOutletContext() || {}
   const limited = accessCount >= 3
   const softened = accessCount >= 4 || elapsedMinutes >= 2
+  const socialLevel = (() => {
+    if (orderScore >= 75) return '高'
+    if (orderScore >= 68) return '標準'
+    if (orderScore >= 60) return '要観察'
+    if (orderScore >= 52) return '注意'
+    return '低'
+  })()
 
   return (
     <section className="page">
@@ -25,7 +32,7 @@ function Top() {
           </div>
           <div className="status-item">
             <div className="status-label">社会適合レベル</div>
-            <div className="status-value">標準</div>
+            <div className="status-value">{socialLevel}</div>
           </div>
         </div>
       </div>
