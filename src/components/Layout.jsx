@@ -63,6 +63,16 @@ function Layout() {
       }
       return next
     })
+
+    setOrderScore((prev) => {
+      const next = Math.max(40, prev - 1)
+      try {
+        localStorage.setItem('orderScore', String(next))
+      } catch {
+        // ignore storage errors
+      }
+      return next
+    })
   }, [location.key])
 
   useEffect(() => {
