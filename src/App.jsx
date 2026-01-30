@@ -8,7 +8,6 @@ import About from './pages/About'
 import Restricted from './pages/Restricted'
 import NotFound from './pages/NotFound'
 import Purge from './pages/Purge'
-import Rehabilitation from './pages/Rehabilitation'
 
 function App() {
   return (
@@ -21,7 +20,6 @@ function App() {
           <Route path="suggestion" element={<Suggestion />} />
           <Route path="about" element={<About />} />
           <Route path="purge" element={<Purge />} />
-          <Route path="rehabilitation" element={<Rehabilitation />} />
           <Route path="restricted" element={<Restricted />} />
           <Route path="*" element={<NotFound />} />
         </Route>

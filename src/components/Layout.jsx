@@ -7,6 +7,13 @@ function Layout() {
   const lastKeyRef = useRef('')
   const [firstAccessAt] = useState(() => {
     try {
+      const resetSession = localStorage.getItem('resetSession')
+      if (resetSession === '1') {
+        localStorage.removeItem('resetSession')
+        localStorage.removeItem('accessCount')
+        localStorage.removeItem('firstAccessAt')
+        return Date.now()
+      }
       const stored = Number(localStorage.getItem('firstAccessAt'))
       if (Number.isFinite(stored) && stored > 0) return stored
       const now = Date.now()
@@ -16,7 +23,14 @@ function Layout() {
       return Date.now()
     }
   })
-  const [accessCount, setAccessCount] = useState(0)
+  const [accessCount, setAccessCount] = useState(() => {
+    try {
+      const stored = Number(localStorage.getItem('accessCount'))
+      return Number.isFinite(stored) && stored > 0 ? stored : 0
+    } catch {
+      return 0
+    }
+  })
   const [clickCount, setClickCount] = useState(() => {
     try {
       const stored = Number(localStorage.getItem('clickCount'))
@@ -41,12 +55,29 @@ function Layout() {
     lastKeyRef.current = location.key
 
     setAccessCount((prev) => {
-      return prev + 1
+      const next = prev + 1
+      try {
+        localStorage.setItem('accessCount', String(next))
+      } catch {
+        // ignore storage errors
+      }
+      return next
     })
   }, [location.key])
 
   useEffect(() => {
-    const handleClick = () => {
+    const handleClick = (event) => {
+      const target = event.target
+      if (!(target instanceof HTMLElement)) return
+      const actionTarget = target.closest('a.action-button, button.action-button')
+      if (!actionTarget) return
+      if (
+        actionTarget.getAttribute('aria-disabled') === 'true' ||
+        (actionTarget instanceof HTMLButtonElement && actionTarget.disabled)
+      ) {
+        return
+      }
+
       setClickCount((prev) => {
         const next = prev + 1
         try {
@@ -93,16 +124,16 @@ function Layout() {
   }, [orderScore])
   const penaltyActive = orderScore <= 60 || clickCount >= 20
   const purgeActive = orderScore < 50
-  const isRehabilitation = location.pathname.endsWith('/rehabilitation')
-  const lockout = purgeActive && !isRehabilitation
+  const isPurge = location.pathname.endsWith('/purge')
+  const lockout = purgeActive && !isPurge
 
   useEffect(() => {
-    if (!purgeActive || isRehabilitation) return
+    if (!purgeActive || isPurge) return
     const timer = setTimeout(() => {
-      navigate('/rehabilitation')
+      navigate('/purge')
     }, 600)
     return () => clearTimeout(timer)
-  }, [navigate, purgeActive, isRehabilitation])
+  }, [navigate, purgeActive, isPurge])
   return (
     <div className="layout">
       <header className="header">
